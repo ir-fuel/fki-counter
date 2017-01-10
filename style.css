@@ -1,0 +1,48 @@
+.screen {
+  height:100vh;
+  display: flex;
+  flex-direction: column;
+  align-items:stretch;
+}
+
+.waiting {
+  background-color: red;
+  color:black;
+}
+
+.go {
+  background-color: green;
+  color:black;
+}
+
+.fkirow {
+  display:flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  flex-grow: 1;
+}
+
+.fkicol {
+  flex-grow: 1;
+  border-color: #0f0f0f;
+  border-style: solid;
+  border-width: 1px;
+  flex-basis: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  padding-bottom: 60px;
+}
+
+.kart-number {
+  font-size: 220px;
+  font-weight: bold;
+}
+
+.time-remaining {
+  font-size: 80px;
+  font-weight: bold;
+}

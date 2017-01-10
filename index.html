@@ -1,0 +1,134 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css"/>
+  <link rel="stylesheet" href="style.css"/>
+
+  <script src="jquery/jquery-3.1.1.min.js"></script>
+  <script src="bootstrap/js/bootstrap.min.js"></script>
+  <script src="moment/moment.min.js"></script>
+</head>
+
+<script src="karts.js"></script>
+<script>
+
+  const xCount = 3
+  const yCount = 2
+  const startDelay = 10
+  const cellCount = xCount * yCount
+
+  var kartTable = []
+
+  let previousTimeStamp = 0
+
+
+  function parseKartTimes() {
+    var lines = karts.split(/\r?\n/)
+
+    let slotIndex = 0
+    lines.forEach((line) => {
+      const parts = line.split(',')
+
+      if (parts.length === 2) {
+        const kartNumber = parts[0]
+        const time = moment(parts[1], "HH:mm:ss.SSS")
+
+        kartTable.push({
+          number: kartNumber,
+          time: time.valueOf(),
+          slotIndex: slotIndex % cellCount
+        })
+        ++slotIndex
+      }
+    })
+
+    const firstKartTime = kartTable[0].time
+
+    kartTable.forEach((kart) => {
+      kart.time -= firstKartTime
+      kart.time += startDelay * 1000
+    })
+  }
+
+
+  function updateScreen() {
+    for(let x=0;x<Math.min(cellCount,kartTable.length);++x) {
+      const kart = kartTable[x]
+      const cell = $(`[data-slot-index="${kart.slotIndex}"]`)
+      const kartNumber = cell.find('.kart-number')
+      const remainingTime = cell.find('.time-remaining')
+
+      kartNumber.text(kart.number)
+
+      if(kart.time < 0) {
+        cell.attr('class','go fkicol')
+        remainingTime.text('GO!')
+      } else {
+        cell.attr('class','waiting fkicol')
+        remainingTime.text((parseInt(kart.time / 100) / 10).toFixed(2))
+      }
+    }
+  }
+
+  function updateKartingData(currentTimeStamp) {
+    const deltaMs = currentTimeStamp - previousTimeStamp
+
+    kartTable.forEach((kart) => {
+      kart.time -= deltaMs
+    })
+
+    kartTable = kartTable.filter((kart) => {
+      return kart.time > - 2000
+    })
+
+    previousTimeStamp = currentTimeStamp
+    updateScreen()
+    window.requestAnimationFrame(updateKartingData);
+  }
+
+  function doIt() {
+
+    parseKartTimes()
+
+    var screen = $(".screen")
+
+    var index = 0
+    for(var y=0;y<yCount;++y) {
+
+      const  row = $(`<div class="fkirow""></div>`)
+
+      for(var x=0;x<xCount;++x) {
+        const col = $(`<div class="waiting fkicol" data-slot-index="${index}"></div>`)
+
+        const  kartNumber = $('<div class="kart-number">88</div>')
+        const  timeRemaining = $('<div class="time-remaining">14.0</div>')
+
+        col.append(kartNumber)
+        col.append(timeRemaining)
+
+        ++index
+        row.append(col)
+      }
+
+      screen.append(row)
+    }
+
+    previousTimeStamp = performance.now()
+
+    window.requestAnimationFrame(updateKartingData);
+  }
+
+  $(document).ready(function() {
+    setTimeout(doIt,2000)
+
+  })
+
+
+</script>
+<body>
+<div class="screen">
+
+</div>
+</body>
+</html>
